@@ -1,0 +1,7 @@
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+cd "$DIR"
+
+swift package resolve
+swift package generate-xcodeproj
+
+open Synopsis.xcodeproj
