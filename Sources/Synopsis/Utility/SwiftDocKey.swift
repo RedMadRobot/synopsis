@@ -22,6 +22,10 @@ extension Dictionary where Key == String {
         return self[SwiftDocKey.offset] as! Int
     }
     
+    var length: Int {
+        return self[SwiftDocKey.length] as! Int
+    }
+    
     var parsedDeclaration: String {
         if let value = self[SwiftDocKey.parsedDeclaration] as? String {
             return value

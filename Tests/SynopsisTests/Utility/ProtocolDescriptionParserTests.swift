@@ -13,9 +13,11 @@ class ProtocolDescriptionParserTests: SynopsisTestCase {
     override func setUp() {
         super.setUp()
         storeContents(basicProtocol, asFile: "BasicProtocol.swift")
+        storeContents(protocolWithMultilineMethods, asFile: "MultilineMethodProtocol.swift")
     }
     
     override func tearDown() {
+        deleteFile(named: "MultilineMethodProtocol.swift")
         deleteFile(named: "BasicProtocol.swift")
         super.tearDown()
     }
@@ -70,8 +72,102 @@ class ProtocolDescriptionParserTests: SynopsisTestCase {
         XCTAssertEqual(basicProtocolDescription.methods, expectedMethods)
     }
     
+    func testParse_protocolWithMultilineMethodDeclarations_returnsCorrectReturnTypes() {
+        let inputFile: URL = urlForFile(named: "MultilineMethodProtocol.swift")
+        let parser = ProtocolDescriptionParser()
+        let result: ParsingResult<ProtocolDescription> = parser.parse(files: [inputFile])
+        
+        XCTAssertEqual(result.models.count, 1)
+        let actualProtocolDescription: ProtocolDescription = result.models.first!
+        
+        XCTAssertEqual(
+            actualProtocolDescription,
+            ProtocolDescription(
+                comment: nil,
+                annotations: [],
+                declaration: Declaration(
+                    filePath: inputFile,
+                    rawText: "protocol Multiline",
+                    offset: 0,
+                    lineNumber: 1,
+                    columnNumber: 1
+                ),
+                accessibility: Accessibility.`internal`,
+                name: "Multiline",
+                inheritedTypes: [],
+                properties: [],
+                methods: [
+                    MethodDescription(
+                        comment: "Get `Person` by id",
+                        annotations: [],
+                        accessibility: Accessibility.`internal`,
+                        name: "get(personId:)",
+                        arguments: [
+                            ArgumentDescription(
+                                name: "personId",
+                                bodyName: "id",
+                                type: TypeDescription.integer,
+                                defaultValue: nil,
+                                annotations: [Annotation(name: "url", value: nil, declaration: nil)],
+                                declaration: nil,
+                                comment: " @url"
+                            ),
+                        ],
+                        returnType: TypeDescription.generic(name: "ServiceCall", constraints: [TypeDescription.object(name: "Person")]),
+                        declaration: Declaration(
+                            filePath: inputFile,
+                            rawText: "func get(\n        personId id: Int // @url\n    ) -> ServiceCall<Person>",
+                            offset: 52,
+                            lineNumber: 3,
+                            columnNumber: 5
+                        ),
+                        kind: FunctionDescription.Kind.instance,
+                        body: nil
+                    ),
+                    MethodDescription(
+                        comment: "Search for `Person`",
+                        annotations: [],
+                        accessibility: Accessibility.`internal`,
+                        name: "search(firstName:lastName:)",
+                        arguments: [
+                            ArgumentDescription(
+                                name: "firstName",
+                                bodyName: "firstName",
+                                type: TypeDescription.string,
+                                defaultValue: nil,
+                                annotations: [Annotation(name: "query", value: "first_name", declaration: nil)],
+                                declaration: nil,
+                                comment: " @query first_name"
+                            ),
+                            ArgumentDescription(
+                                name: "lastName",
+                                bodyName: "lastName",
+                                type: TypeDescription.string,
+                                defaultValue: nil,
+                                annotations: [Annotation(name: "query", value: "last_name", declaration: nil)],
+                                declaration: nil,
+                                comment: " @query last_name"
+                            ),
+                        ],
+                        returnType: TypeDescription.array(element: TypeDescription.object(name: "Person")),
+                        declaration: Declaration(
+                            filePath: inputFile,
+                            rawText: "func search(\n        firstName: String, // @query first_name\n        lastName: String   // @query last_name\n    ) -> [Person]",
+                            offset: 157,
+                            lineNumber: 8,
+                            columnNumber: 5
+                        ),
+                        kind: FunctionDescription.Kind.instance,
+                        body: nil
+                    ),
+                ]
+            )
+        )
+    }
+    
     static var allTests = [
         ("testParse_basicFile_returnsAsExpected", testParse_basicFile_returnsAsExpected),
+        ("testParse_protocolWithMultilineMethodDeclarations_returnsCorrectReturnTypes", testParse_protocolWithMultilineMethodDeclarations_returnsCorrectReturnTypes),
     ]
 }
 
@@ -102,5 +198,21 @@ public protocol Doer {
      Do anything.
      */
     func abc()
+}
+"""
+
+
+let protocolWithMultilineMethods = """
+protocol Multiline {
+    /// Get `Person` by id
+    func get(
+        personId id: Int // @url
+    ) -> ServiceCall<Person>
+
+    /// Search for `Person`
+    func search(
+        firstName: String, // @query first_name
+        lastName: String   // @query last_name
+    ) -> [Person]
 }
 """

@@ -52,8 +52,13 @@ class FunctionDescriptionParser<Function: FunctionDescription> {
         return rawStructureElements
             .filter { isRawFunctionDescription($0) }
             .map { (rawFunctionDescription: [String: AnyObject]) -> Function in
-                let declarationString: String   = rawFunctionDescription.parsedDeclaration
-                let declarationOffset: Int      = rawFunctionDescription.offset
+                let declarationOffset: Int    = rawFunctionDescription.offset
+                let declarationString: String =
+                    deduceDeclaration(
+                        rawFunctionDescription: rawFunctionDescription,
+                        file: file.file.contents,
+                        declarationOffset: declarationOffset
+                    )
                 
                 let name:           String                  = rawFunctionDescription.name
                 let comment:        String?                 = rawFunctionDescription.comment
@@ -90,6 +95,46 @@ class FunctionDescriptionParser<Function: FunctionDescription> {
 
 
 private extension FunctionDescriptionParser {
+    
+    func deduceDeclaration(rawFunctionDescription: [String: AnyObject], file: String, declarationOffset: Int) -> String {
+        /**
+         Sometimes SourceKit can't accurately parse full method declaration
+         This constantly happens for multiline method declarations in protocols, where
+         
+         func abc(
+            argument: Int
+         ) -> String
+         
+         gets truncated to "func abc(".
+         
+         This is why defaultDeclarationString needs to be checked.
+         */
+        let defaultDeclarationString: String = rawFunctionDescription.parsedDeclaration
+        let defaultDeclarationLex = LexemeString(defaultDeclarationString)
+        
+        // Simple check searches for the right round bracket:
+        for index in defaultDeclarationString.indices {
+            if defaultDeclarationLex.inSourceCodeRange(index) && ")" == defaultDeclarationString[index] {
+                return defaultDeclarationString
+            }
+        }
+        // defaultDeclarationString is enough for most cases.
+        
+        // If defaultDeclarationString is not enough, full method declaration needs to be parsed manually
+        let startIndex: String.Index    = file.index(file.startIndex, offsetBy: declarationOffset)
+        let endIndex:   String.Index    = file.index(startIndex, offsetBy: rawFunctionDescription.length)
+        let fullText:   String          = String(file[startIndex...endIndex])
+        let fullTextLex                 = LexemeString(fullText)
+        
+        var declarationString: String = ""
+        for index in fullText.indices {
+            // Detect the end of method signature by the opening curly brace:
+            if fullTextLex.inSourceCodeRange(index) && "{" == fullText[index] { break }
+            declarationString.append(fullText[index])
+        }
+        
+        return declarationString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    }
     
     func translate(_ structures: [CompiledStructure]) -> [Function] {
         return structures.flatMap { translate($0) }

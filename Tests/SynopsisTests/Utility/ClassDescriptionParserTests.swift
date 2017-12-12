@@ -158,10 +158,10 @@ class ClassDescriptionParserTests: SynopsisTestCase {
                         comment: nil
                     ),
                 ],
-                returnType: TypeDescription.void,
+                returnType: TypeDescription.generic(name: "ServiceCall", constraints: [TypeDescription.object(name: "Person")]),
                 declaration: Declaration(
                     filePath: inputFile,
-                    rawText: "func internalMethod(\n    parameter: String, // @string\n    asInteger integer: Int = 0\n)",
+                    rawText: "func internalMethod(\n    parameter: String, // @string\n    asInteger integer: Int = 0\n) -> ServiceCall<Person>",
                     offset: 564,
                     lineNumber: 44,
                     columnNumber: 5
@@ -179,7 +179,7 @@ class ClassDescriptionParserTests: SynopsisTestCase {
                 declaration: Declaration(
                     filePath: inputFile,
                     rawText: "private func privateMethod()",
-                    offset: 748,
+                    offset: 771,
                     lineNumber: 54,
                     columnNumber: 13
                 ),
@@ -355,7 +355,7 @@ class Basic: Codable {
     func internalMethod(
         parameter: String, // @string
         asInteger integer: Int = 0
-    ) {
+    ) -> ServiceCall<Person> {
         print(basicInt)
     }
 
