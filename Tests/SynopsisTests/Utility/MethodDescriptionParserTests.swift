@@ -17,6 +17,7 @@ class MethodDescriptionParserTests: SynopsisTestCase {
     
     override func tearDown() {
         deleteFile(named: "TopLevelMethods.swift")
+        super.tearDown()
     }
     
     func testParse_topLevelMethods_returnsAsExpected() {
@@ -36,7 +37,7 @@ class MethodDescriptionParserTests: SynopsisTestCase {
                 accessibility: Accessibility.`internal`,
                 name: "topLevelFunction()",
                 arguments: [],
-                returnType: nil,
+                returnType: TypeDescription.void,
                 declaration: Declaration(
                     filePath: inputFile,
                     rawText: "func topLevelFunction()",

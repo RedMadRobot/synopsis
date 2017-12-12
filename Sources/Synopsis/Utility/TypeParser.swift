@@ -21,6 +21,7 @@ class TypeParser {
             case "Float": return TypeDescription.floatingPoint
             case "Double": return TypeDescription.doublePrecision
             case "String": return TypeDescription.string
+            case "Void": return TypeDescription.void
             
             default: return deduceType(fromDeclaration: declaration)
         }
@@ -31,7 +32,7 @@ class TypeParser {
             String(functionTypename.split(separator: " ").last!)
         
         switch returnTypename {
-            case "()", "Void": return nil
+            case "()", "Void": return TypeDescription.void
             
             case "Bool": return TypeDescription.boolean
             case "Int": return TypeDescription.integer
@@ -139,6 +140,10 @@ private extension TypeParser {
         
         if rawType == "String" {
             return TypeDescription.string
+        }
+        
+        if rawType == "Void" {
+            return TypeDescription.void
         }
         
         var objectTypeName: String = String(rawType.firstWord())

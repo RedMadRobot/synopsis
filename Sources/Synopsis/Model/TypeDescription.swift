@@ -48,6 +48,11 @@ public indirect enum TypeDescription: Equatable, CustomStringConvertible {
     case data
     
     /**
+     Void.
+     */
+    case void
+    
+    /**
      Anything optional; wraps actual type.
      */
     case optional(wrapped: TypeDescription)
@@ -88,6 +93,7 @@ public indirect enum TypeDescription: Equatable, CustomStringConvertible {
             case .string: return "String"
             case .date: return "Date"
             case .data: return "Data"
+            case .void: return "Void"
             case .optional(let wrapped): return "\(wrapped.verse)?"
             case .object(let name): return name
             case .array(let element): return "[\(element.verse)]"
@@ -107,6 +113,7 @@ public indirect enum TypeDescription: Equatable, CustomStringConvertible {
             case .string: return "String"
             case .date: return "Date"
             case .data: return "Data"
+            case .void: return "Void"
             case let .optional(wrapped): return "\(wrapped)?"
             case let .object(name): return "\(name)"
             case let .array(item): return "[\(item)]"
@@ -138,6 +145,9 @@ public indirect enum TypeDescription: Equatable, CustomStringConvertible {
                 return true
             
             case (TypeDescription.string, TypeDescription.string):
+                return true
+            
+            case (TypeDescription.void, TypeDescription.void):
                 return true
             
             case (let TypeDescription.optional(wrappedLeft), let TypeDescription.optional(wrappedRight)):

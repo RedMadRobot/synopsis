@@ -158,7 +158,7 @@ class ClassDescriptionParserTests: SynopsisTestCase {
                         comment: nil
                     ),
                 ],
-                returnType: nil,
+                returnType: TypeDescription.void,
                 declaration: Declaration(
                     filePath: inputFile,
                     rawText: "func internalMethod(\n    parameter: String, // @string\n    asInteger integer: Int = 0\n)",
@@ -175,7 +175,7 @@ class ClassDescriptionParserTests: SynopsisTestCase {
                 accessibility: Accessibility.`private`,
                 name: "privateMethod()",
                 arguments: [],
-                returnType: nil,
+                returnType: TypeDescription.void,
                 declaration: Declaration(
                     filePath: inputFile,
                     rawText: "private func privateMethod()",

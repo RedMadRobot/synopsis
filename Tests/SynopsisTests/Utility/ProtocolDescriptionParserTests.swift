@@ -44,7 +44,7 @@ class ProtocolDescriptionParserTests: SynopsisTestCase {
                 accessibility: Accessibility.`public`,
                 name: "abc()",
                 arguments: [],
-                returnType: nil,
+                returnType: TypeDescription.void,
                 declaration: Declaration(
                     filePath: inputFile,
                     rawText: "func abc()",
