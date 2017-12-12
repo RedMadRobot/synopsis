@@ -27,7 +27,7 @@ class TypeParser {
         }
     }
     
-    func parse(functionTypename: String) -> TypeDescription? {
+    func parse(functionTypename: String, declarationString: String) -> TypeDescription? {
         let returnTypename: String =
             String(functionTypename.split(separator: " ").last!)
         
@@ -40,7 +40,22 @@ class TypeParser {
             case "Double": return TypeDescription.doublePrecision
             case "String": return TypeDescription.string
             
-            default: return parse(rawType: returnTypename)
+            default:
+                if functionTypename != "<<error type>>" {
+                    return parse(rawType: returnTypename)
+                }
+                
+                // FIXME: Make a LexemeString, exclude comments
+                
+                if !declarationString.contains("->") {
+                    return nil
+                }
+                
+                if let rawReturnType: String = declarationString.components(separatedBy: "->").last?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) {
+                    return parse(rawType: rawReturnType)
+                }
+                
+                return nil
         }
     }
     

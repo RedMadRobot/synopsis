@@ -60,7 +60,7 @@ class FunctionDescriptionParser<Function: FunctionDescription> {
                 let annotations:    [Annotation]            = nil != comment ? AnnotationParser().parse(comment: comment!) : []
                 let accessibility:  Accessibility           = Accessibility.deduce(forRawStructureElement: rawFunctionDescription)
                 let typename:       String                  = rawFunctionDescription.typename
-                let returnType:     TypeDescription?        = TypeParser().parse(functionTypename: typename)
+                let returnType:     TypeDescription?        = TypeParser().parse(functionTypename: typename, declarationString: declarationString)
                 let kind:           Function.Kind           = getKind(rawFunctionDescription: rawFunctionDescription)
                 let body:           String?                 = getBody(rawFunctionDescription: rawFunctionDescription, file: file)
                 let arguments:      [ArgumentDescription]   = ArgumentDescriptionParser().parse(functionParsedDeclaration: declarationString)

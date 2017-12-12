@@ -13,9 +13,11 @@ class MethodDescriptionParserTests: SynopsisTestCase {
     override func setUp() {
         super.setUp()
         storeContents(topLevelMethods, asFile: "TopLevelMethods.swift")
+        storeContents(genericReturnType, asFile: "GenericReturnType.swift")
     }
     
     override func tearDown() {
+        deleteFile(named: "GenericReturnType.swift")
         deleteFile(named: "TopLevelMethods.swift")
         super.tearDown()
     }
@@ -51,8 +53,40 @@ class MethodDescriptionParserTests: SynopsisTestCase {
         )
     }
     
+    func testParse_complexReturnType_returnsAsExpected() {
+        let inputFile: URL = urlForFile(named: "GenericReturnType.swift")
+        let parser = FunctionDescriptionParser()
+        
+        let result: ParsingResult<FunctionDescription> = parser.parse(files: [inputFile])
+        
+        XCTAssertEqual(result.models.count, 1)
+        let topLevelFunction: FunctionDescription = result.models.first!
+        
+        XCTAssertEqual(
+            topLevelFunction,
+            FunctionDescription(
+                comment: nil,
+                annotations: [],
+                accessibility: Accessibility.`internal`,
+                name: "genericReturnType()",
+                arguments: [],
+                returnType: TypeDescription.generic(name: "ServiceCall", constraints: [TypeDescription.void]),
+                declaration: Declaration(
+                    filePath: inputFile,
+                    rawText: "func genericReturnType() /* bla bla */ -> ServiceCall<Void>",
+                    offset: 0,
+                    lineNumber: 1,
+                    columnNumber: 1
+                ),
+                kind: .free,
+                body: "\n"
+            )
+        )
+    }
+    
     static var allTests = [
         ("testParse_topLevelMethods_returnsAsExpected", testParse_topLevelMethods_returnsAsExpected),
+        ("testParse_complexReturnType_returnsAsExpected", testParse_complexReturnType_returnsAsExpected),
     ]
     
 }
@@ -60,5 +94,11 @@ class MethodDescriptionParserTests: SynopsisTestCase {
 
 let topLevelMethods = """
 func topLevelFunction() {
+}
+"""
+
+
+let genericReturnType = """
+func genericReturnType() /* bla bla */ -> ServiceCall<Void> {
 }
 """
