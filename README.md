@@ -1,4 +1,4 @@
-# Synopsis
+![](main-illustration.png)
 ## Description
 
 The package is designed to gather information from Swift source files and compile this information into concrete objects with
